@@ -31,5 +31,10 @@ namespace FolderInfo.Classes
                 return;
             }
         }
+
+        public void WriteToFile(string filename)
+        {
+
+        }
     }
 }
