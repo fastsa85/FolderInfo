@@ -1,13 +1,7 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
-using FolderInfo.Classes;
 using System.IO.Compression;
+using FolderInfo.WinHelper;
 
 namespace FolderInfo
 {
@@ -15,6 +9,11 @@ namespace FolderInfo
     {
         static void Main(string[] args)
         {
+            Desktop desktop = new Desktop();
+            //var w = desktop.GetWidth();
+            var size = desktop.GetIconSize("Fast");
+            desktop.SetIconPosition("Fast");
+
             //get paths
             var targetDirectory = getCurrentUserDirectory();
             var desktopFullPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -35,7 +34,7 @@ namespace FolderInfo
             Console.WriteLine("Done. Press any key to exit.");
             Console.ReadKey();
         }
-
+        
         /// <summary>
         /// Returns full path to current user directory
         /// </summary>
