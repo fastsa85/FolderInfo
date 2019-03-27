@@ -7,13 +7,10 @@ namespace FolderInfo
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-            Desktop desktop = new Desktop();
-            //var w = desktop.GetWidth();
-            var size = desktop.GetIconSize("Fast");
-            desktop.SetIconPosition("Fast");
+        private const string ARCHIVE_NAME = "Fast";
 
+        static void Main(string[] args)
+        {            
             //get paths
             var targetDirectory = getCurrentUserDirectory();
             var desktopFullPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -22,15 +19,23 @@ namespace FolderInfo
             DirectoryInfo directory = new DirectoryInfo(targetDirectory);
             var temporaryFile = AppDomain.CurrentDomain.BaseDirectory + DateTime.Now.GetHashCode() + ".txt";
             var tw = new StreamWriter(temporaryFile, true);
-            writeOutDirectoryToStream(directory, 17, tw);
+            Console.WriteLine($"Processing directory: {directory}...");
+            writeOutDirectory(directory, 17, tw);
             tw.Close();
 
-            //archive
-            archiveFile(temporaryFile, desktopFullPath, "Fast");
+            //archive file
+            archiveFile(temporaryFile, desktopFullPath, ARCHIVE_NAME);
 
             //clean up
             File.Delete(temporaryFile);
 
+            //Move archive to right-top corner
+            Desktop desktop = new Desktop();
+            var desktopWidth = desktop.GetWidth();
+            var iconSize = desktop.GetIconSize();
+            desktop.SetIconPosition(ARCHIVE_NAME, desktopWidth - iconSize, 0);
+
+            //Done
             Console.WriteLine("Done. Press any key to exit.");
             Console.ReadKey();
         }
@@ -72,7 +77,7 @@ namespace FolderInfo
         /// <param name="days">Days count</param>
         /// <param name="sreamWriter">Stream to write</param>
         /// <param name="levelAppendSymbols" default="">Symbols to add before directory name (to visualize directory level)</param>
-        private static void writeOutDirectoryToStream(DirectoryInfo directory, int days, StreamWriter sreamWriter, string levelAppendSymbols = "")
+        private static void writeOutDirectory(DirectoryInfo directory, int days, StreamWriter sreamWriter, string levelAppendSymbols = "")
         {
             var directorySymbol = ">";
             var fileSymbol = " -";
@@ -80,8 +85,7 @@ namespace FolderInfo
             try
             {
                 if (hasDirectoryFileOlderThan(directory, days))
-                {
-                    Console.WriteLine($"Processing directory: {directory}...");
+                {                   
                     sreamWriter.WriteLine($"{levelAppendSymbols}{directorySymbol}{directory.Name}");
 
                     foreach (var file in directory.GetFiles())
@@ -90,7 +94,7 @@ namespace FolderInfo
 
                     foreach (var subdirectory in directory.GetDirectories())
                     {
-                        writeOutDirectoryToStream(subdirectory, days, sreamWriter, levelAppendSymbols + ' ');
+                        writeOutDirectory(subdirectory, days, sreamWriter, levelAppendSymbols + ' ');
                     }
                 }
             }

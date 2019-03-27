@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Automation;
 using Microsoft.Win32;
-using System.Runtime.InteropServices;
-using System.Drawing;
 
 namespace FolderInfo.WinHelper
 {
@@ -29,45 +23,42 @@ namespace FolderInfo.WinHelper
                 child != null;
                 child = walker.GetNextSibling(child))
             {
-                _currentIconsOrder.Add(child.Current.Name);
+                _currentIconsOrder.Add(child.Current.Name);                
             }
         }
 
-
-        public void SetIconPosition(string iconName)
+        /// <summary>
+        /// Set position of icon specified by icon's name.
+        /// Desctop top left  corner as desktop origin 
+        /// Icon top left corner as icon origin
+        /// </summary>
+        /// <param name="iconName">Target icon name</param>
+        /// <param name="x">X coordinate (0... desktop width)</param>
+        /// <param name="y">Y coordinate (0... desktop height)</param>
+        public void SetIconPosition(string iconName, int x, int y)
         {
             var iconIndex = _currentIconsOrder.IndexOf(iconName);
-            Windows.SendMessage(_desktopHandle, Windows.LVM_SETITEMPOSITION, iconIndex, Windows.MakeLParamFor_LVM_SETITEMPOSITION(960, 540));
-            
+            Windows.SendMessage(_desktopHandle, Windows.LVM_SETITEMPOSITION, iconIndex, Windows.MakeLParamFor_LVM_SETITEMPOSITION(x, y));            
         }
 
+        /// <summary>
+        /// Returns width of desktop
+        /// </summary>
+        /// <returns></returns>
         public int GetWidth()
-        {
-            //Rect rect = new Rect();
-            //Windows.GetWindowRect(_desktopHandle, out rect);
-            //return (int)rect.Width;
-
+        {            
             var rect = Screen.PrimaryScreen.Bounds;
             return rect.Width;
         }
-
-        public int GetIconSize(string iconName)
+        
+        /// <summary>
+        /// Returns actual size of desktop icons
+        /// </summary>
+        /// <returns></returns>
+        public int GetIconSize()
         {
-            var iconIndex = _currentIconsOrder.IndexOf(iconName);
-            Rect rect = new Rect();
-
-            IntPtr pRct = Marshal.AllocHGlobal(Marshal.SizeOf(rect));
-            Marshal.StructureToPtr(rect, pRct, false);
-            
-            var r = Windows.SendMessage(_desktopHandle, Windows.LVM_GETITEMRECT, iconIndex, pRct);
-
-            Rect result = (Rect)Marshal.PtrToStructure(pRct, typeof(Rect));
-            Marshal.FreeHGlobal(pRct);
-
-
-            return (int)result.Width;
-            
-
+            object size = RegistryHelper.GetRegistryValue(Registry.CurrentUser, @"Control Panel\Desktop\WindowMetrics","Shell Icon Size", -1);
+            return Convert.ToInt32(size);
         }
     }
 }

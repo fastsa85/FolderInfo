@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace FolderInfo.WinHelper
@@ -33,6 +29,10 @@ namespace FolderInfo.WinHelper
         [DllImport("user32.dll")]
         public static extern void ListView_GetItemRect(IntPtr hwnd, int i, out Rect prc, int code);
 
+        /// <summary>
+        /// Returns handle to desktop default view window
+        /// </summary>
+        /// <returns></returns>
         public static IntPtr GetDesktopWindow()
         {
             var shellWindow = GetShellWindow();
